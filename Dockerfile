@@ -96,7 +96,12 @@ RUN wget $easyinstallRepo \
     # delete unnecessary frappe apps git folder
     && rm -rf \
     apps/frappe/.git \
-    apps/erpnext/.git
+    apps/erpnext/.git \
+    # delete temp file
+    && sudo rm -rf /tmp/* \
+    # clean up installation
+    && sudo apt-get autoremove --purge -y \
+    && sudo apt-get clean
 
 # change back config for work around for  "cmd": "chsh frappe -s $(which bash)", "stderr": "Password: chsh: PAM: Authentication failure"
 RUN sudo sed -i 's/auth       sufficient   pam_shells.so/auth       required   pam_shells.so/' /etc/pam.d/chsh
