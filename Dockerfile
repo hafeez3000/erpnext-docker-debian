@@ -1,4 +1,4 @@
-FROM debian:9.3
+FROM debian:9.6-slim
 
 # install prerequisite
 RUN apt-get -y update \
@@ -87,7 +87,16 @@ RUN wget $easyinstallRepo \
     && bench update --patch \
     # add mysql remote user, so we can connect to mysql inside container from host
     && mysql -u "root" "-p$mysqlPass" -e "CREATE USER '$remoteUser'@'%' IDENTIFIED BY '$remotePass';" \
-    && mysql -u "root" "-p$mysqlPass" -e "GRANT ALL ON *.* TO '$remoteUser'@'%';"
+    && mysql -u "root" "-p$mysqlPass" -e "GRANT ALL ON *.* TO '$remoteUser'@'%';" \
+    # delete unnecessary frappe apps
+    && rm -rf \
+    apps/frappe_io \
+    apps/foundation \
+    && sed -i '/foundation\|frappe_io/d' sites/apps.txt \
+    # delete unnecessary frappe apps git folder
+    && rm -rf \
+    apps/frappe/.git \
+    apps/erpnext/.git
 
 # change back config for work around for  "cmd": "chsh frappe -s $(which bash)", "stderr": "Password: chsh: PAM: Authentication failure"
 RUN sudo sed -i 's/auth       sufficient   pam_shells.so/auth       required   pam_shells.so/' /etc/pam.d/chsh
