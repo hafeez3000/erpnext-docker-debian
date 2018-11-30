@@ -54,13 +54,13 @@ ENV easyinstallRepo='https://raw.githubusercontent.com/frappe/bench/master/playb
     erpnextBranch=master \
     siteName=site1.local \
     branch=master \
-    adminPass=12345 \
-    mysqlPass=travis \
-    # mysql remote user
-    remoteUser=remote \
-    remotePass=12345
+    adminPass=12345
 
-RUN wget $easyinstallRepo \
+RUN sudo apt-get -y install git \
+    && git clone $benchRepo /tmp/.bench --depth 1 --branch $benchBranch \
+    # remove mariadb from easy install
+    && sed -i '/mariadb/d' /tmp/.bench/playbooks/site.yml \
+    && wget $easyinstallRepo \
     # add mariadb apt-key first to skip adding from ansible playbook
     # which will cause error > "gpg: cannot open '/dev/tty': No such device or address" error
     && sudo apt-key adv --no-tty --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xF1656F24C74CD1D8 \
@@ -72,16 +72,12 @@ RUN wget $easyinstallRepo \
     && git clone --branch $benchBranch --depth 1 --origin upstream $benchRepo $benchPath  \
     && sudo pip install -e $benchPath \
     && bench init $benchFolderName --frappe-path $frappeRepo --frappe-branch $frappeBranch --python $pythonVersion \
-    # cd to bench folder and start mysql service
+    # cd to bench folder
     && cd $benchFolderName \
-    && sudo service mysql start \
     # install erpnext
     && bench get-app erpnext $erpnextRepo --branch $erpnextBranch \
     # fix for Setup failed >> Could not start up: Error in setup
     && bench update --patch \
-    # add mysql remote user, so we can connect to mysql inside container from host
-    && mysql -u "root" "-p$mysqlPass" -e "CREATE USER '$remoteUser'@'%' IDENTIFIED BY '$remotePass';" \
-    && mysql -u "root" "-p$mysqlPass" -e "GRANT ALL ON *.* TO '$remoteUser'@'%';" \
     # delete unnecessary frappe apps
     && rm -rf \
     apps/frappe_io \
@@ -108,12 +104,6 @@ WORKDIR /home/$systemUser/$benchFolderName
 COPY production_setup/conf/frappe-docker-conf /home/$systemUser/production_config
 # fix for [docker Error response from daemon OCI runtime create failed starting container process caused "permission denied" unknown]
 RUN sudo chmod +x /home/$systemUser/production_config/entrypoint_prd.sh
-
-# run start mysql service when container start
-COPY entrypoint.sh /usr/local/bin/
-# fix for [docker Error response from daemon OCI runtime create failed starting container process caused "permission denied" unknown]
-RUN sudo chmod +x /usr/local/bin/entrypoint.sh
-CMD ["/usr/local/bin/entrypoint.sh"]
 
 # expose port
 EXPOSE 8000-8005 9000-9005 3306-3307
