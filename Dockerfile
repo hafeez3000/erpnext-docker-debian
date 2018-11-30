@@ -5,15 +5,14 @@ RUN apt-get -y update \
     && apt-get -y install \
     build-essential \
     python-setuptools \
-    curl \
     wget \
-    nano \
     cron \
-    gettext-base \
     sudo \
     locales \
+    # for production
     supervisor \
     nginx \
+    # clean up
     && apt-get autoremove --purge \
     && apt-get clean
 
@@ -76,13 +75,8 @@ RUN wget $easyinstallRepo \
     # cd to bench folder and start mysql service
     && cd $benchFolderName \
     && sudo service mysql start \
-    # create new site
-    && bench new-site $siteName \
-    --mariadb-root-password $mysqlPass  \
-    --admin-password $adminPass \
     # install erpnext
     && bench get-app erpnext $erpnextRepo --branch $erpnextBranch \
-    && bench --site $siteName install-app erpnext \
     # fix for Setup failed >> Could not start up: Error in setup
     && bench update --patch \
     # add mysql remote user, so we can connect to mysql inside container from host
