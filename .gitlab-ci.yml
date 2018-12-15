@@ -5,23 +5,17 @@ services:
   # dind > Docker in Docker
   - docker:dind
 
-variables:
-  img: erpnext-docker-debian
-
 before_script:
   - docker login -u "$dh_user" -p "$dh_pass"
 
 stages:
   - build
-  - tag
 
 build-mas-py2:
   stage: build
-  variables:
-    img_tag: mas-py2-latest
   script:
-    - docker build -t "$dh_user/$img:$img_tag"
+    - docker build -t "$dh_user/erpnext-docker-debian:mas-py2-latest"
       --build-arg pythonVersion=python
       --build-arg appBranch=master
       .
-    - docker push "$dh_user/$img:$img_tag"
+    - docker push "$dh_user/erpnext-docker-debian:mas-py2-latest"
