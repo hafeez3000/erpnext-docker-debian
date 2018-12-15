@@ -13,9 +13,12 @@ stages:
 
 build-mas-py2:
   stage: build
+  variables:
+    docker_image_tag: "mas-py2-latest"
   script:
-    - docker build -t $docker_image:mas-py2-latest
+    - docker info
+    - docker build -t $docker_image:$docker_image_tag
       --build-arg pythonVersion=python
       --build-arg appBranch=master
       .
-    - docker push $docker_image:mas-py2-latest
+    - docker push $docker_image:$docker_image_tag
