@@ -9,7 +9,7 @@ variables:
   img: erpnext-docker-debian
 
 before_script:
-  - docker login -u "$dh_user" --password-stdin "$dh_pass"
+  - docker login -u "$dh_user" -p "$dh_pass"
 
 stages:
   - build
