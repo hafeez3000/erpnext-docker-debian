@@ -6,7 +6,7 @@ services:
   - docker:dind
 
 before_script:
-  - docker login -u "$dh_user" -p "$dh_pass"
+  - docker login -u $dh_user -p $dh_pass
 
 stages:
   - build
