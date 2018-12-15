@@ -42,17 +42,16 @@ WORKDIR /home/$systemUser
 # install prerequisite for bench with easy install script
 ENV easyinstallRepo='https://raw.githubusercontent.com/frappe/bench/master/playbooks/install.py' \
     benchPath=bench-repo \
-    benchRepo='https://github.com/frappe/bench' \
     benchBranch=master \
-    frappeRepo='https://github.com/frappe/frappe' \
-    frappeBranch=master \
-    # for python 2 use = python
-    # for python 3 use = python3 or python3.6 for centos
-    pythonVersion=python \
     benchFolderName=bench \
-    erpnextRepo='https://github.com/frappe/erpnext' \
-    erpnextBranch=master \
-    branch=master
+    benchRepo='https://github.com/frappe/bench' \
+    frappeRepo='https://github.com/frappe/frappe' \
+    erpnextRepo='https://github.com/frappe/erpnext'
+
+# for python 2 use = python
+# for python 3 use = python3 or python3.6 for centos
+ARG pythonVersion=python
+ARG appBranch=master
 
 RUN git clone $benchRepo /tmp/.bench --depth 1 --branch $benchBranch \
     # remove mariadb from easy install which make image 1.2GB smaller
@@ -66,11 +65,11 @@ RUN git clone $benchRepo /tmp/.bench --depth 1 --branch $benchBranch \
     && git clone --branch $benchBranch --depth 1 --origin upstream $benchRepo $benchPath  \
     && sudo pip install -e $benchPath \
     # init bench folder
-    && bench init $benchFolderName --frappe-path $frappeRepo --frappe-branch $frappeBranch --python $pythonVersion \
+    && bench init $benchFolderName --frappe-path $frappeRepo --frappe-branch $appBranch --python $pythonVersion \
     # cd to bench folder
     && cd $benchFolderName \
     # install erpnext
-    && bench get-app erpnext $erpnextRepo --branch $erpnextBranch \
+    && bench get-app erpnext $erpnextRepo --branch $appBranch \
     # [work around] fix for Setup failed >> Could not start up: Error in setup
     && bench update --patch \
     # delete unnecessary frappe apps

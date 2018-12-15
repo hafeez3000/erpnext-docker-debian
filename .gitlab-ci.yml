@@ -1,0 +1,27 @@
+# Official docker image.
+image: docker:latest
+
+services:
+  # dind > Docker in Docker
+  - docker:dind
+
+variables:
+  img: erpnext-docker-debian
+
+before_script:
+  - docker login -u "$dh_user" --password-stdin "$dh_pass"
+
+stages:
+  - build
+  - tag
+
+build-mas-py2:
+  stage: build
+  variables:
+    img_tag: mas-py2-latest
+  script:
+    - docker build -t "$dh_user/$img:$img_tag"
+      --build-arg pythonVersion=python
+      --build-arg appBranch=master
+      .
+    - docker push "$dh_user/$img:$img_tag"
