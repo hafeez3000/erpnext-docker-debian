@@ -5,14 +5,17 @@ services:
   # dind > Docker in Docker
   - docker:dind
 
+variables:
+  docker_image: "pipech/erpnext-docker-debian"
+
 stages:
   - build
 
 build-mas-py2:
   stage: build
   script:
-    - docker build -t "$docker_user/erpnext-docker-debian:mas-py2-latest"
+    - docker build -t $docker_image:mas-py2-latest
       --build-arg pythonVersion=python
       --build-arg appBranch=master
       .
-    - docker push "$docker_user/erpnext-docker-debian:mas-py2-latest"
+    - docker push $docker_image:mas-py2-latest
