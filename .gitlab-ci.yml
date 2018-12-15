@@ -6,9 +6,9 @@ services:
   - docker:dind
 
 before_script:
-  - echo $dh_user
-  - echo $dh_pass
-  - docker login -u $dh_user -p $dh_pass
+  - echo $docker_user
+  - echo $docker_pass
+  - docker login -u $docker_user -p $docker_pass
 
 stages:
   - build
@@ -16,8 +16,8 @@ stages:
 build-mas-py2:
   stage: build
   script:
-    - docker build -t "$dh_user/erpnext-docker-debian:mas-py2-latest"
+    - docker build -t "$docker_user/erpnext-docker-debian:mas-py2-latest"
       --build-arg pythonVersion=python
       --build-arg appBranch=master
       .
-    - docker push "$dh_user/erpnext-docker-debian:mas-py2-latest"
+    - docker push "$docker_user/erpnext-docker-debian:mas-py2-latest"
