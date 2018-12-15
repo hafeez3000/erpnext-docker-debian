@@ -5,11 +5,6 @@ services:
   # dind > Docker in Docker
   - docker:dind
 
-before_script:
-  - echo $docker_user
-  - echo $docker_pass
-  - docker login -u $docker_user -p $docker_pass
-
 stages:
   - build
 
